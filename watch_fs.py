@@ -12,10 +12,16 @@ DEFAULT_INOTIFY_MASK = pyinotify.IN_CREATE | pyinotify.IN_MODIFY
 
 parser = argparse.ArgumentParser(prog='watch-fs')
 parser.add_argument(
-    'command', help="The command to run when files change")
+    'command', help="the command to run when files change")
 parser.add_argument(
-    '-d', action='append', metavar='DIR', dest='paths',
-    help="A directory to watch. Can be used more than once.")
+    '-d', '--directory', action='append', metavar='DIR', dest='paths',
+    help="a directory to watch")
+parser.add_argument(
+    '-D', '--delay', type=int, default=1,
+    help="minimum seconds to wait before running the command again")
+parser.add_argument(
+    '-V', '--verbose', action='store_true',
+    help="be more verbose")
 
 
 class Timer(object):
@@ -28,29 +34,28 @@ class Timer(object):
     def __init__(self, delay, function):
         self.delay = datetime.timedelta(seconds=delay)
         self.function = function
-        self.set_last_call_time()
-
-    def set_last_call_time(self):
-        self.last_call = self.now()
-
-    def time_since_last_call(self):
-        return self.now() - self.last_call
+        self.last_call = self.now() - self.delay
 
     def __call__(self, *args, **kwargs):
-        if self.time_since_last_call() > self.delay:
+        if (self.now() - self.last_call) > self.delay:
             self.function(*args, **kwargs)
-            self.set_last_call_time()
+            self.last_call = self.now()
 
 
 class Command(pyinotify.ProcessEvent):
-    def __init__(self, command, delay=0.5):
+    def __init__(self, command, verbose=False, delay=0.5):
         self.command = command
+        self.verbose = verbose
         self.timer = Timer(delay, self.run_command)
 
     def run_command(self, event):
+        if self.verbose:
+            print("$ {}".format(self.command))
         command = self.command.format(name=event.name, path=event.pathname)
-        proccess = subprocess.Popen(command, shell=True)
-        proccess.wait()
+        exit_code = subprocess.call(command, shell=True)
+        if self.verbose and exit_code:
+            print("Command {} exited with code {}".format(
+                self.command, exit_code))
 
     def process_default(self, event):
         if not event.dir:
@@ -61,7 +66,8 @@ def main(mask=DEFAULT_INOTIFY_MASK):
     args = parser.parse_args()
 
     watch_manager = pyinotify.WatchManager()
-    event_handler = Command(args.command)
+    event_handler = Command(
+        command=args.command, delay=args.delay, verbose=args.verbose)
     notifier = pyinotify.Notifier(watch_manager, event_handler)
 
     for path in (args.paths or ['.']):
