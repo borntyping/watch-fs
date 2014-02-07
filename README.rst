@@ -11,7 +11,7 @@ when any of them are changed.
 
 ::
 
-	watch-fs [--exclude=PATH] [--directory=PATH] [--file=PATH] <command>
+	watch-fs [-d DIR] <command>
 
 By default, ``watch-fs`` will watch the current directory.
 
