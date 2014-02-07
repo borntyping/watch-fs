@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(prog='watch-fs')
 parser.add_argument(
     'command', help="The command to run when files change")
 parser.add_argument(
-    '-d', action='append', metavar='DIR',
+    '-d', action='append', metavar='DIR', dest='paths',
     help="A directory to watch. Can be used more than once.")
 
 class Command(object):
@@ -33,7 +33,7 @@ def main(mask=DEFAULT_INOTIFY_MASK):
     watch_manager = pyinotify.WatchManager()
     notifier = pyinotify.Notifier(watch_manager, Command(args.command))
 
-    for path in (args.path or ['.']):
+    for path in (args.paths or ['.']):
         watch_manager.add_watch(path, mask, rec=True, auto_add=True)
 
     notifier.loop()
