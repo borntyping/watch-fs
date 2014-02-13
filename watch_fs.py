@@ -20,6 +20,9 @@ parser.add_argument(
     '-f', '--first', action='store_true',
     help="run the command first and then wait for changes")
 parser.add_argument(
+    '-c', '--clear', action='store_true',
+    help="run 'clear' before running the command")
+parser.add_argument(
     '-D', '--delay', type=int, default=1,
     help="minimum seconds to wait before running the command again")
 parser.add_argument(
@@ -52,12 +55,15 @@ class Timer(object):
 
 
 class Command(pyinotify.ProcessEvent):
-    def __init__(self, command, verbose=False, delay=0.5, first=None):
+    def __init__(self, command, verbose=False, clear=False, *args, **kwargs):
         self.command = command
         self.verbose = verbose
-        self.timer = Timer(self.run_command, delay=delay, first=first)
+        self.clear = clear
+        self.timer = Timer(self.run_command, *args, **kwargs)
 
     def run_command(self, event):
+        if self.clear:
+            subprocess.call('clear')
         if self.verbose:
             print("$ {}".format(self.command))
         command = self.command.format(name=event.name, path=event.pathname)
@@ -76,8 +82,8 @@ def main(mask=DEFAULT_INOTIFY_MASK):
 
     watch_manager = pyinotify.WatchManager()
     event_handler = Command(
-        command=args.command, verbose=args.verbose, delay=args.delay,
-        first=(FalseEvent() if args.first else None))
+        command=args.command, verbose=args.verbose, clear=args.clear,
+        delay=args.delay, first=(FalseEvent() if args.first else None))
     notifier = pyinotify.Notifier(watch_manager, event_handler)
 
     for path in (args.paths or ['.']):
