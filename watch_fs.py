@@ -26,7 +26,7 @@ parser.add_argument(
     '-D', '--delay', type=int, default=1,
     help="minimum seconds to wait before running the command again")
 parser.add_argument(
-    '-V', '--verbose', action='store_true',
+    '-v', '--verbose', action='store_true',
     help="be more verbose")
 
 class FalseEvent(object):
