@@ -1,95 +1,93 @@
-"""
-watch-fs is a command line tool to run commands when files change
-"""
+"""watch-fs is a command line tool to run commands when files change"""
 
-import argparse
 import datetime
 import subprocess
 
+import click
 import pyinotify
 
-DEFAULT_INOTIFY_MASK = pyinotify.IN_CREATE | pyinotify.IN_MODIFY
 
-parser = argparse.ArgumentParser(prog='watch-fs')
-parser.add_argument(
-    'command', help="the command to run when files change")
-parser.add_argument(
-    '-d', '--directory', action='append', metavar='DIR', dest='paths',
-    help="a directory to watch")
-parser.add_argument(
-    '-f', '--first', action='store_true',
-    help="run the command first and then wait for changes")
-parser.add_argument(
-    '-c', '--clear', action='store_true',
-    help="run 'clear' before running the command")
-parser.add_argument(
-    '-D', '--delay', type=int, default=1,
-    help="minimum seconds to wait before running the command again")
-parser.add_argument(
-    '-v', '--verbose', action='store_true',
-    help="be more verbose")
+@click.command()
+@click.option(
+    '--directory', '-d', 'directories',
+    type=click.Path(dir_okay=True, file_okay=False, exists=True),
+    help="A directory to watch for file changes - can be used multiple times, "
+    "and defaults to the current directory.")
+@click.option(
+    '-f', '--first/--no-first', default=True,
+    help="Run the command once before waiting for changes")
+@click.option(
+    '-c', '--clear/--no-clear', default=False,
+    help="Clear the terminal before running the command")
+@click.option(
+    '-D', '--delay', type=click.FLOAT, default=1,
+    help="Minium delay before running the command again, in seconds")
+@click.option(
+    '-v', '--verbose/--quiet', default=False,
+    help="Echo commands and exit codes")
+@click.argument('command')
+def main(directories, clear, delay, first, verbose, command):
+    WatchFS(directories, command, clear, delay, first, verbose=True).run()
 
-class FalseEvent(object):
-    name = None
-    pathname = None
+
+class WatchFS(pyinotify.ProcessEvent):
+    def __init__(self, directories, command,
+                 clear=False, delay=0.5, first=True, verbose=True,
+                 mask=pyinotify.IN_CREATE | pyinotify.IN_MODIFY):
+        self.directories = directories or ['.']
+        self.command = command
+        self.first = first
+        self.clear = clear
+        # self.delay = delay
+        self.verbose = verbose
+        self.mask = mask
+
+        self.timer = Timer(delay)
+
+    def run(self):
+        watch_manager = pyinotify.WatchManager()
+        for d in self.directories:
+            watch_manager.add_watch(d, self.mask, rec=True, auto_add=True)
+        notifier = pyinotify.Notifier(watch_manager, self)
+
+        if self.first:
+            self.run_command()
+
+        notifier.loop()
+
+    def run_command(self):
+        if self.clear:
+            subprocess.call('clear')
+
+        if self.verbose:
+            print('$', self.command)
+
+        exit_code = subprocess.call(self.command, shell=True)
+        if self.verbose and exit_code:
+            print("Command '{}' exited with code {}".format(
+                self.command, exit_code))
+
+    def process_default(self, event):
+        if self.timer():
+            self.run_command()
+
 
 class Timer(object):
-    """Call a function if $delay has passed since the last call"""
+    """Call a function if $delay has passed since the last successful call"""
 
     @staticmethod
     def now():
         return datetime.datetime.now()
 
-    def __init__(self, function, delay=1, first=None):
-        self.function = function
+    def __init__(self, delay=1):
         self.delay = datetime.timedelta(seconds=delay)
         self.last_call = self.now() - self.delay
 
-        if first is not None:
-            self(FalseEvent())
-
-    def __call__(self, *args, **kwargs):
+    def __call__(self):
         if (self.now() - self.last_call) > self.delay:
-            self.function(*args, **kwargs)
             self.last_call = self.now()
-
-
-class Command(pyinotify.ProcessEvent):
-    def __init__(self, command, verbose=False, clear=False, *args, **kwargs):
-        self.command = command
-        self.verbose = verbose
-        self.clear = clear
-        self.timer = Timer(self.run_command, *args, **kwargs)
-
-    def run_command(self, event):
-        if self.clear:
-            subprocess.call('clear')
-        if self.verbose:
-            print("$ {}".format(self.command))
-        command = self.command.format(name=event.name, path=event.pathname)
-        exit_code = subprocess.call(command, shell=True)
-        if self.verbose and exit_code:
-            print("Command {} exited with code {}".format(
-                self.command, exit_code))
-
-    def process_default(self, event):
-        if not event.dir:
-            self.timer(event)
-
-
-def main(mask=DEFAULT_INOTIFY_MASK):
-    args = parser.parse_args()
-
-    watch_manager = pyinotify.WatchManager()
-    event_handler = Command(
-        command=args.command, verbose=args.verbose, clear=args.clear,
-        delay=args.delay, first=(FalseEvent() if args.first else None))
-    notifier = pyinotify.Notifier(watch_manager, event_handler)
-
-    for path in (args.paths or ['.']):
-        watch_manager.add_watch(path, mask, rec=True, auto_add=True)
-
-    notifier.loop()
+            return True
+        return False
 
 if __name__ == '__main__':
     main()
