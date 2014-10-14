@@ -12,7 +12,7 @@ directory.
 
 ::
 
-	Usage: watch-fs [OPTIONS] COMMAND
+    Usage: watch-fs [OPTIONS] COMMAND
 
     Options:
       -d, --directory DIRECTORY  A directory to watch for file changes - can be
@@ -27,9 +27,9 @@ directory.
 Installation
 ------------
 
-I recommend you use `pipsi <https://github.com/mitsuhiko/pipsi>`_ to install ``watch-fs`` as a script:
+I recommend you use `pipsi <https://github.com/mitsuhiko/pipsi>`_ to install ``watch-fs`` as a script::
 
-    pipsi install watch-fs
+  pipsi install watch-fs
 
 Alternatively, you can install it as a global python module with::
 
