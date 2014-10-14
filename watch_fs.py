@@ -10,7 +10,7 @@ import pyinotify
 @click.command()
 @click.option(
     '--directory', '-d', 'directories', multiple=True, default=['.'],
-    type=click.Path(dir_okay=True, file_okay=False, exists=True),
+    type=click.Path(dir_okay=True, file_okay=True, exists=True),
     help="A directory to watch for file changes - can be used multiple times, "
     "and defaults to the current directory.")
 @click.option(

@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='watch-fs',
-    version='1.0.0-dev',
+    version='1.0.0',
 
     author="Sam Clements",
     author_email="sam@borntyping.co.uk",
@@ -27,7 +27,7 @@ setuptools.setup(
     },
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'License :: OSI Approved',
         'License :: OSI Approved :: MIT License',
