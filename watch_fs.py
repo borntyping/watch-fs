@@ -1,5 +1,7 @@
 """watch-fs is a command line tool to run commands when files change"""
 
+from __future__ import print_function
+
 import datetime
 import subprocess
 
