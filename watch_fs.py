@@ -17,14 +17,14 @@ import pyinotify
     '-c', '--clear/--no-clear', default=False,
     help="Clear the terminal before running the command")
 @click.option(
-    '-D', '--delay', type=click.FLOAT, default=0.5,
+    '-D', '--delay', type=click.FLOAT, default=1,
     help="Minium delay before running the command again, in seconds")
 @click.option(
-    '-v', '--verbose/--quiet', default=False,
+    '-v', '--verbose', 'verbosity', count=True,
     help="Echo commands and exit codes")
 @click.argument('command')
-def main(directories, clear, delay, verbose, command):
-    WatchFS(directories, command, clear, delay, verbose=True).run()
+def main(directories, clear, delay, verbosity, command):
+    WatchFS(directories, command, clear, delay, verbosity).run()
 
 
 class Timer(object):
@@ -48,12 +48,12 @@ class Timer(object):
 
 
 class WatchFS(pyinotify.ProcessEvent):
-    def __init__(self, directories, command, clear, delay, verbose,
+    def __init__(self, directories, command, clear, delay, verbosity,
                  mask=pyinotify.IN_CREATE | pyinotify.IN_MODIFY):
         self.directories = directories
         self.command = command
         self.clear = clear
-        self.verbose = verbose
+        self.verbosity = verbosity
         self.mask = mask
         self.timer = Timer(delay)
 
@@ -67,23 +67,26 @@ class WatchFS(pyinotify.ProcessEvent):
         self.run_command()
         notifier.loop()
 
-    def maybe_run_command(self, event=None):
+    def maybe_run_command(self, event):
         """Run the command *if* the delay has passed"""
         if self.timer.ready():
+            self.say(2, '!', 'Ready, running command')
             self.run_command()
             self.timer.finished()
+        else:
+            self.say(2, '!', 'Not ready, skipping event')
 
-    def run_command(self, event=None):
+    def run_command(self):
         if self.clear:
             subprocess.call('clear')
-
-        if self.verbose:
-            print('$', self.command)
-
+        self.say(1, '$', self.command)
         exit_code = subprocess.call(self.command, shell=True)
-        if self.verbose and exit_code:
-            print("! Command '{}' exited with code {}".format(
+        self.say(2, "!", "Command '{}' exited with code {}".format(
                 self.command, exit_code))
+
+    def say(self, verbosity, *args, **kwargs):
+        if self.verbosity >= verbosity:
+            print(*args, **kwargs)
 
 if __name__ == '__main__':
     main()
