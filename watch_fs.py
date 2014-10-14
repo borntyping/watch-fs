@@ -14,33 +14,33 @@ import pyinotify
     help="A directory to watch for file changes - can be used multiple times, "
     "and defaults to the current directory.")
 @click.option(
-    '-c', '--clear/--no-clear', default=False,
+    '-c', '--clear', is_flag=True,
     help="Clear the terminal before running the command")
 @click.option(
-    '-D', '--delay', type=click.FLOAT, default=1,
-    help="Minium delay before running the command again, in seconds")
+    '-w', '--wait', type=click.FLOAT, default=1,
+    help="A minium wait before running the command again, in seconds")
 @click.option(
     '-v', '--verbose', 'verbosity', count=True,
-    help="Echo commands and exit codes")
+    help="-v prints commands before running, and -vv shows debug information")
 @click.argument('command')
-def main(directories, clear, delay, verbosity, command):
-    WatchFS(directories, command, clear, delay, verbosity).run()
+def main(directories, clear, wait, verbosity, command):
+    WatchFS(directories, command, clear, wait, verbosity).run()
 
 
 class Timer(object):
-    """Call a function if $delay has passed since the last successful call"""
+    """Calls a function if a delay has passed since the last successful call"""
 
     @staticmethod
     def now():
         return datetime.datetime.now()
 
-    def __init__(self, delay):
-        self.delay = datetime.timedelta(seconds=delay)
-        self.finished_at = self.now() - self.delay
+    def __init__(self, wait):
+        self.wait = datetime.timedelta(seconds=wait)
+        self.finished_at = self.now() - self.wait
 
     def ready(self):
-        """Returns True if .delay has passed since .finished_at"""
-        return (self.now() - self.finished_at) > self.delay
+        """Returns True if .wait has passed since .finished_at"""
+        return (self.now() - self.finished_at) > self.wait
 
     def finished(self):
         """Resets the finished_at attribute"""
@@ -48,14 +48,14 @@ class Timer(object):
 
 
 class WatchFS(pyinotify.ProcessEvent):
-    def __init__(self, directories, command, clear, delay, verbosity,
+    def __init__(self, directories, command, clear, wait, verbosity,
                  mask=pyinotify.IN_CREATE | pyinotify.IN_MODIFY):
         self.directories = directories
         self.command = command
         self.clear = clear
         self.verbosity = verbosity
         self.mask = mask
-        self.timer = Timer(delay)
+        self.timer = Timer(wait)
 
     def run(self):
         """Setup inotify to call run_command() on each event"""
