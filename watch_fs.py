@@ -14,9 +14,6 @@ import pyinotify
     help="A directory to watch for file changes - can be used multiple times, "
     "and defaults to the current directory.")
 @click.option(
-    '-f', '--first/--no-first', default=True,
-    help="Run the command once before waiting for changes")
-@click.option(
     '-c', '--clear/--no-clear', default=False,
     help="Clear the terminal before running the command")
 @click.option(
@@ -26,17 +23,16 @@ import pyinotify
     '-v', '--verbose/--quiet', default=False,
     help="Echo commands and exit codes")
 @click.argument('command')
-def main(directories, clear, delay, first, verbose, command):
-    WatchFS(directories, command, clear, delay, first, verbose=True).run()
+def main(directories, clear, delay, verbose, command):
+    WatchFS(directories, command, clear, delay, verbose=True).run()
 
 
 class WatchFS(pyinotify.ProcessEvent):
     def __init__(self, directories, command,
-                 clear=False, delay=0.5, first=True, verbose=True,
+                 clear=False, delay=0.5, verbose=True,
                  mask=pyinotify.IN_CREATE | pyinotify.IN_MODIFY):
         self.directories = directories or ['.']
         self.command = command
-        self.first = first
         self.clear = clear
         # self.delay = delay
         self.verbose = verbose
@@ -49,10 +45,7 @@ class WatchFS(pyinotify.ProcessEvent):
         for d in self.directories:
             watch_manager.add_watch(d, self.mask, rec=True, auto_add=True)
         notifier = pyinotify.Notifier(watch_manager, self)
-
-        if self.first:
-            self.run_command()
-
+        self.run_command()
         notifier.loop()
 
     def run_command(self):
