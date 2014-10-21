@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='watch-fs',
-    version='1.2.0',
+    version='1.2.1',
 
     author="Sam Clements",
     author_email="sam@borntyping.co.uk",
@@ -10,6 +10,7 @@ setuptools.setup(
     url="https://github.com/borntyping/watch-fs",
     description="A command line tool to run commands when files change",
     long_description=open('README.rst').read(),
+    license='MIT',
 
     py_modules=[
         'watch_fs'
