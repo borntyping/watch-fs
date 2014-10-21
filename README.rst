@@ -1,7 +1,19 @@
 watch-fs
 ========
 
+
+.. image:: http://img.shields.io/pypi/v/watch-fs.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/watch-fs
+
+.. image:: http://img.shields.io/pypi/l/watch-fs.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/watch-fs
+
+|
+
 ``watch-fs`` is a command line tool to run commands when files change.
+
+* `Source on GitHub <https://github.com/borntyping/watch-fs>`_
+* `Packages on PyPI <https://pypi.python.org/pypi/watch-fs>`_
 
 Usage
 -----
