@@ -1,3 +1,5 @@
+"""Test the watch_fs module using click.testing"""
+
 import watch_fs
 
 import click.testing
