@@ -24,9 +24,9 @@ import pyinotify
 @click.option(
     '-v', '--verbose', 'verbosity', count=True,
     help="-v prints commands before running, and -vv shows debug information")
-@click.argument('command')
+@click.argument('command', nargs=-1)
 def main(directories, clear, wait, verbosity, command):
-    WatchFS(directories, command, clear, wait, verbosity).run()
+    WatchFS(directories, ' '.join(command), clear, wait, verbosity).run()
 
 
 class Timer(object):
@@ -84,7 +84,7 @@ class WatchFS(pyinotify.ProcessEvent):
         self.say(1, '$', self.command)
         exit_code = subprocess.call(self.command, shell=True)
         self.say(2, "!", "Command '{}' exited with code {}".format(
-                self.command, exit_code))
+            self.command, exit_code))
 
     def say(self, verbosity, *args, **kwargs):
         if self.verbosity >= verbosity:

@@ -2,13 +2,13 @@ import setuptools
 
 setuptools.setup(
     name='watch-fs',
-    version='1.2.3',
+    version='1.3.0',
 
     author="Sam Clements",
     author_email="sam@borntyping.co.uk",
 
     url="https://github.com/borntyping/watch-fs",
-    description="A command line tool to run commands when files change",
+    description="Run commands when files change",
     long_description=open('README.rst').read(),
     license='MIT',
 

@@ -23,6 +23,7 @@ watch-fs
 
 * `Source on GitHub <https://github.com/borntyping/watch-fs>`_
 * `Packages on PyPI <https://warehouse.python.org/project/watch-fs/>`_
+* `Builds on Travis CI <https://travis-ci.org/borntyping/watch-fs>`_
 
 Usage
 -----
@@ -31,7 +32,7 @@ Usage
 when any of them are changed. By default, ``watch-fs`` will watch the current
 directory.
 
-::
+.. code::
 
     Usage: watch-fs [OPTIONS] COMMAND
 
