@@ -1,19 +1,28 @@
 watch-fs
 ========
 
+.. image:: https://img.shields.io/pypi/v/watch-fs.svg?style=flat-square
+    :target: https://warehouse.python.org/project/watch-fs/
+    :alt: watch-fs on PyPI
 
-.. image:: http://img.shields.io/pypi/v/watch-fs.svg?style=flat-square
-    :target: https://pypi.python.org/pypi/watch-fs
+.. image:: https://img.shields.io/pypi/l/watch-fs.svg?style=flat-square
+    :target: https://warehouse.python.org/project/watch-fs/
+    :alt: watch-fs on PyPI
 
-.. image:: http://img.shields.io/pypi/l/watch-fs.svg?style=flat-square
-    :target: https://pypi.python.org/pypi/watch-fs
+.. image:: https://img.shields.io/travis/borntyping/watch-fs/master.svg?style=flat-square
+    :target: https://travis-ci.org/borntyping/watch-fs
+    :alt: Travis-CI build status for watch-fs
+
+.. image:: https://img.shields.io/github/issues/borntyping/watch-fs.svg?style=flat-square
+    :target: https://github.com/borntyping/watch-fs/issues
+    :alt: GitHub issues for watch-fs
 
 |
 
 ``watch-fs`` is a command line tool to run commands when files change.
 
 * `Source on GitHub <https://github.com/borntyping/watch-fs>`_
-* `Packages on PyPI <https://pypi.python.org/pypi/watch-fs>`_
+* `Packages on PyPI <https://warehouse.python.org/project/watch-fs/>`_
 
 Usage
 -----
@@ -39,13 +48,17 @@ directory.
 Installation
 ------------
 
-I recommend you use `pipsi <https://github.com/mitsuhiko/pipsi>`_ to install ``watch-fs`` as a script::
+I recommend you use pipsi_ to install ``watch-fs`` in it's own virtualenv and link it from ``~/.local/bin``:
 
-  pipsi install watch-fs
+.. code-block:: bash
 
-Alternatively, you can install it as a global python module with::
+    pipsi install watch-fs
 
-	pip install watch-fs
+Alternatively, you can install system-wide using pip_::
+
+.. code-block:: bash
+
+    pip install watch-fs
 
 Licence
 -------
@@ -56,3 +69,6 @@ Author
 ------
 
 ``watch-fs`` was written by `Sam Clements <https://github.com/borntyping>`_.
+
+.. _pipsi: https://github.com/mitsuhiko/pipsi
+.. _pip: https://pip.readthedocs.org/
