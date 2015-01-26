@@ -12,4 +12,4 @@ script:
 matrix:
   allow_failures:
     - env: TOXENV=lint
-sudo: true
+sudo: false
