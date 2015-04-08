@@ -55,7 +55,7 @@ I recommend you use pipsi_ to install ``watch-fs`` in it's own virtualenv and li
 
     pipsi install watch-fs
 
-Alternatively, you can install system-wide using pip_::
+Alternatively, you can install system-wide using pip_:
 
 .. code-block:: bash
 
