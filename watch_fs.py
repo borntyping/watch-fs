@@ -64,7 +64,7 @@ class WatchFS(object):
         if self.clear:
             click.clear()
         if self.show:
-            click.secho('$ {}'.format(self.command), fg='cyan')
+            click.secho('$ {0}'.format(self.command), fg='cyan')
         exit_code = subprocess.call(self.command, shell=True)
         if self.smile:
             click.secho('\n☺', fg='green')
