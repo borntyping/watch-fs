@@ -1,6 +1,7 @@
+# -*- coding: utf8 -*-
 """watch-fs is a command line tool to run commands when files change."""
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import datetime
 import subprocess
@@ -32,12 +33,14 @@ class Timer(object):
 class WatchFS(object):
     """A timer and pyinotify setup to run a command when files change."""
 
-    def __init__(self, directories, command, clear, wait, verbosity,
+    def __init__(self, directories, command, clear, show, smile, verbose, wait,
                  mask=pyinotify.IN_CREATE | pyinotify.IN_MODIFY):
         self.directories = directories
         self.command = command
         self.clear = clear
-        self.verbosity = verbosity
+        self.show = show
+        self.smile = smile
+        self.verbose = verbose
         self.mask = mask
         self.timer = Timer(wait)
 
@@ -54,23 +57,20 @@ class WatchFS(object):
     def maybe_run_command(self, event):
         """Run the command if the delay has passed."""
         if self.timer.ready():
-            self.say(2, '!', 'Ready, running command')
             self.run_command()
             self.timer.finished()
-        else:
-            self.say(2, '!', 'Not ready, skipping event')
 
     def run_command(self):
         if self.clear:
-            subprocess.call('clear')
-        self.say(1, '$', self.command)
+            click.clear()
+        if self.show:
+            click.secho('$ {}'.format(self.command), fg='cyan')
         exit_code = subprocess.call(self.command, shell=True)
-        self.say(2, "!", "Command '{0}' exited with code {1}".format(
-            self.command, exit_code))
-
-    def say(self, verbosity, *args, **kwargs):
-        if self.verbosity >= verbosity:
-            print(*args, **kwargs)
+        if self.smile:
+            click.secho('\n☺', fg='green')
+        if self.verbose:
+            click.echo("! Command '{0}' exited [{1}]".format(
+                self.command, exit_code))
 
 
 @click.command()
@@ -80,18 +80,28 @@ class WatchFS(object):
     help="A directory to watch for file changes - can be used multiple times, "
     "and defaults to the current directory.")
 @click.option(
-    '-c', '--clear', is_flag=True,
-    help="Clear the terminal before running the command")
+    '-c', '--clear/--no-clear', is_flag=True, default=True,
+    help="Clear the terminal before running the command.")
+@click.option(
+    '-s', '--show/--no-show', is_flag=True, default=True,
+    help="Show commands before runnning them.")
+@click.option(
+    '-s', '--smile/--no-smile', is_flag=True, default=True,
+    help="Print a smiley face when a command exits successfully.")
+@click.option(
+    '-v', '--verbose/--no-verbose', is_flag=True, default=False,
+    help="Show exit codes.")
 @click.option(
     '-w', '--wait', type=click.FLOAT, default=1,
-    help="A minium wait before running the command again, in seconds")
-@click.option(
-    '-v', '--verbose', 'verbosity', count=True,
-    help="-v prints commands before running, and -vv shows debug information")
+    help="A minium wait between commands, in seconds.")
 @click.argument('command', nargs=-1)
-def main(directories, clear, wait, verbosity, command):
+def main(command, **kwargs):
     """Click entry point for watch-fs."""
-    WatchFS(directories, ' '.join(command), clear, wait, verbosity).run()
+    WatchFS(command=' '.join(command), **kwargs).run()
+
+# def main(directories, clear, show, smile, verbose, wait, command):
+#     """Click entry point for watch-fs."""
+#     WatchFS(directories, ' '.join(command), clear, show, smile, verbose, wait).run()
 
 if __name__ == '__main__':
     main()
