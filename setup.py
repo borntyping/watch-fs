@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='watch-fs',
-    version='1.4.1',
+    version='1.5.0',
 
     author="Sam Clements",
     author_email="sam@borntyping.co.uk",

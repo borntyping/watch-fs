@@ -33,13 +33,12 @@ class Timer(object):
 class WatchFS(object):
     """A timer and pyinotify setup to run a command when files change."""
 
-    def __init__(self, directories, command, clear, show, smile, verbose, wait,
+    def __init__(self, directories, command, clear, show, verbose, wait,
                  mask=pyinotify.IN_CREATE | pyinotify.IN_MODIFY):
         self.directories = directories
         self.command = command
         self.clear = clear
         self.show = show
-        self.smile = smile
         self.verbose = verbose
         self.mask = mask
         self.timer = Timer(wait)
@@ -66,8 +65,6 @@ class WatchFS(object):
         if self.show:
             click.secho('$ {0}'.format(self.command), fg='cyan')
         exit_code = subprocess.call(self.command, shell=True)
-        if self.smile:
-            click.secho('\n☺', fg='green')
         if self.verbose:
             click.echo("! Command '{0}' exited [{1}]".format(
                 self.command, exit_code))
@@ -86,9 +83,6 @@ class WatchFS(object):
     '-s', '--show/--no-show', is_flag=True, default=True,
     help="Show commands before runnning them.")
 @click.option(
-    '-s', '--smile/--no-smile', is_flag=True, default=True,
-    help="Print a smiley face when a command exits successfully.")
-@click.option(
     '-v', '--verbose/--no-verbose', is_flag=True, default=False,
     help="Show exit codes.")
 @click.option(
@@ -98,10 +92,6 @@ class WatchFS(object):
 def main(command, **kwargs):
     """Click entry point for watch-fs."""
     WatchFS(command=' '.join(command), **kwargs).run()
-
-# def main(directories, clear, show, smile, verbose, wait, command):
-#     """Click entry point for watch-fs."""
-#     WatchFS(directories, ' '.join(command), clear, show, smile, verbose, wait).run()
 
 if __name__ == '__main__':
     main()
