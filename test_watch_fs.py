@@ -16,7 +16,7 @@ def run():
 class TestWatchFS(object):
     def test_debug_output(self, loop_mock, run):
         """Check the debug output"""
-        result = run('-v', '--no-smile', 'echo', 'hello', 'world')
+        result = run('-v', 'echo', 'hello', 'world')
         assert result.output == (
             '$ echo hello world\n'
             '! Command \'echo hello world\' exited [0]\n'
